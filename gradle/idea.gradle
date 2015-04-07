@@ -1,0 +1,55 @@
+/*
+ * Copyright (c) 2015
+ * Ministério do Planejamento, Orçamento e Gestão
+ * República Federativa do Brasil
+ *
+ * Este programa é um software livre; você pode redistribuí-lo
+ * e/ou modificá-lo sob os termos da Licença de Software SIOP; O
+ * texto da licença pode ser consultado no arquivo anexo a esta
+ * distribuição ou em <http://www.siop.gov.br/licença>.
+ */
+
+apply plugin: 'idea'
+
+idea {
+    project {
+        jdkName = '1.8'
+        languageLevel = '1.8'
+
+        ipr.withXml { provider ->
+            def node = provider.asNode()
+
+            // Configure copyright notice on files
+            def copyrightComponent = node.component.find { it.'@name' == 'CopyrightManager' }
+            copyrightComponent.'@default' = 'SIOP License'
+
+            def copyrightXml = '''
+                <copyright>
+                    <option name="myName" value="SIOP License" />
+                    <option name="notice" value="Copyright (c) &amp;#36;{today.year}&#10;Ministério do Planejamento, Orçamento e Gestão&#10;República Federativa do Brasil&#10;&#10;Este programa é um software livre; você pode redistribuí-lo&#10;e/ou modificá-lo sob os termos da Licença de Software SIOP; O&#10;texto da licença pode ser consultado no arquivo anexo a esta&#10;distribuição ou em &lt;http://www.siop.gov.br/licença&gt;." />
+                </copyright>
+            '''
+
+            def copyrightConfig = new XmlParser().parseText(copyrightXml)
+            copyrightComponent.append(copyrightConfig)
+
+            def module2copyright = copyrightComponent.module2copyright[0]
+            module2copyright.appendNode('element', [ module: 'Project Files', copyright: 'SIOP License' ])
+
+            // Use git
+            def vcsConfig = node.component.find { it.'@name' == 'VcsDirectoryMappings' }
+            vcsConfig.mapping[0].'@vcs' = 'Git'
+
+            // Set gradle home
+            def gradleSettings = node.appendNode('component', [name: 'GradleSettings'])
+            gradleSettings.appendNode('option', [name: 'SDK_HOME', value: gradle.gradleHomeDir.absolutePath])
+        }
+    }
+
+    module {
+        jdkName = '1.8'
+
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}

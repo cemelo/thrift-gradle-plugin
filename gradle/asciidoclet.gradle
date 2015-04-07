@@ -1,0 +1,32 @@
+/*
+ * Copyright (c) 2015
+ * Ministério do Planejamento, Orçamento e Gestão
+ * República Federativa do Brasil
+ *
+ * Este programa é um software livre; você pode redistribuí-lo
+ * e/ou modificá-lo sob os termos da Licença de Software SIOP; O
+ * texto da licença pode ser consultado no arquivo anexo a esta
+ * distribuição ou em <http://www.siop.gov.br/licença>.
+ */
+
+configurations {
+    asciidoclet
+}
+
+repositories { jcenter() }
+
+dependencies {
+    asciidoclet 'org.asciidoctor:asciidoclet:1.+'
+}
+
+javadoc {
+    options.docletpath = configurations.asciidoclet.files.asType(List)
+
+    options.doclet = 'org.asciidoctor.Asciidoclet'
+
+    options.addStringOption "-base-dir", "${projectDir}"
+    options.addStringOption "-attribute",
+        "name=${project.name}," +
+                "version=${project.version}," +
+                "title-link=http://sso.siop.gov.br[${project.name} ${project.version}]"
+}
